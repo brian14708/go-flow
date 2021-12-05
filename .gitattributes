@@ -1,0 +1,2 @@
+*_generated*.go linguist-generated
+/flowdebug/viewer/profiler/assets/* linguist-vendored
