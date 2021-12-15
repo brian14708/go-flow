@@ -8,6 +8,13 @@ type Generator struct {
 	uniq map[string]int
 }
 
+func (g *Generator) Copy() Generator {
+	if g.uniq == nil {
+		g.uniq = make(map[string]int)
+	}
+	return *g
+}
+
 func (g *Generator) Generate(prefix string) string {
 	if prefix == "" || !Check(prefix) {
 		prefix = "Unnamed"

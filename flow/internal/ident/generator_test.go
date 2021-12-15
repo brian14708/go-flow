@@ -13,6 +13,8 @@ func TestGenerate(t *testing.T) {
 	assert.True(t, strings.HasPrefix(g.Generate("@"), "Unnamed"))
 	assert.True(t, strings.HasPrefix(g.Generate("test"), "test"))
 	assert.NotEqual(t, g.Generate("a"), g.Generate("a"))
+	gg := g.Copy()
+	assert.NotEqual(t, g.Generate("a"), gg.Generate("a"))
 }
 
 func BenchmarkGenerate(b *testing.B) {

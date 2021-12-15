@@ -40,7 +40,64 @@ func (p *Pipeline) Add(name string, n interface{}, opts ...flow.ConnectOption) *
 }
 
 func (p *Pipeline) Discard(s ...string) *Pipeline {
-	p.SplitOutput(s).Add("", node.NewDiscardNode())
+	if len(s) == 0 {
+		_, s = p.Ports()
+	}
+	if len(s) == 0 {
+		return p
+	}
+
+	_, out := p.Ports()
+	outMatcher := newPortMatcher(out)
+
+	var matches []string
+	for _, out := range parsePortList(s) {
+		var ok bool
+		matches, ok = outMatcher.appendMatch(matches, out)
+		if !ok {
+			panic("match output `" + out + "' not found")
+		}
+	}
+
+	types := make([]reflect.Type, len(matches))
+	names := make([]string, 2*len(matches))
+	for i, s := range matches {
+		var err error
+		names[i] = s
+		types[i], err = p.g.PortType(s)
+		if err != nil {
+			panic("fail to get type for `" + s + "': " + err.Error())
+		}
+	}
+
+	for i := range types {
+		if types[i] == nil {
+			continue
+		}
+		buf := names[len(matches):len(matches)]
+
+		ty := types[i]
+		buf = append(buf, names[i])
+		types[i] = nil
+
+		for j, t := range types[i+1:] {
+			if t == ty {
+				buf = append(buf, names[j+i+1])
+				types[j+i+1] = nil
+			}
+		}
+
+		n := node.NewDiscardNode()
+		name := p.getName("", n)
+		if err := p.g.AddNode(name, n); err != nil {
+			panic("fail to add node `" + name + "': " + err.Error())
+		}
+		if err := p.g.Connect(buf, []string{name + ":in"}); err != nil {
+			panic("fail to connect stage `" + name + "': " + err.Error())
+		}
+	}
+
+	p.setOutputPorts(outMatcher.remaining())
 	return p
 }
 

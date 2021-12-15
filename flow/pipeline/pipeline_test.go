@@ -234,7 +234,7 @@ func TestPipelineString(t *testing.T) {
 	assert.Equal(t, "input=[] output=[]", ppl.String())
 }
 
-func TestPipelineDiscard(t *testing.T) {
+func TestPipelineIgnore(t *testing.T) {
 	ch := make(chan int)
 	ppl := New(nil)
 	ppl.Add("test2", (chan<- int)(ch))
@@ -248,6 +248,35 @@ func TestPipelineDiscard(t *testing.T) {
 
 	ppl.IgnoreInput("in")
 	ppl.IgnoreOutput("out")
+}
+
+func TestPipelineDiscard(t *testing.T) {
+	ch := make(chan int)
+	close(ch)
+	{
+		ppl := New(nil)
+		ppl.Add("a", (<-chan int)(ch))
+		ppl.Add("b", &Split{})
+		ppl.Discard("out1", "out3")
+		ppl.Discard("out2")
+		assert.NoError(t, ppl.Run(context.Background()))
+	}
+
+	{
+		ppl := New(nil)
+		ppl.Add("a", (<-chan int)(ch))
+		ppl.Add("b", &Split{})
+		ppl.Discard("out1", "out2", "out3")
+		assert.NoError(t, ppl.Run(context.Background()))
+	}
+
+	{
+		ppl := New(nil)
+		ppl.Add("a", (<-chan int)(ch))
+		ppl.Add("b", &Split{})
+		ppl.Discard()
+		assert.NoError(t, ppl.Run(context.Background()))
+	}
 }
 
 func newSequentialPipeline(in, out chan int) *Pipeline {

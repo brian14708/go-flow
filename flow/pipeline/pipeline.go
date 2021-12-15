@@ -113,9 +113,7 @@ func (p *Pipeline) IgnoreInput(s ...string) *Pipeline {
 
 func (p *Pipeline) IgnoreOutput(s ...string) *Pipeline {
 	if len(s) == 0 {
-		if p.first != nil {
-			p.last = newBlock(nil, nil)
-		}
+		p.setOutputPorts(nil)
 	} else {
 		p.SplitOutput(s)
 	}
@@ -154,14 +152,13 @@ func (p *Pipeline) SplitOutput(portArg interface{}) *Pipeline {
 			panic("match output `" + out + "' not found")
 		}
 	}
-	if p.first != nil {
-		p.last = newBlock(nil, outMatcher.remaining())
-	}
+	p.setOutputPorts(outMatcher.remaining())
 
 	ppl := &Pipeline{
-		g:      p.g,
-		parent: p,
-		prefix: p.prefix,
+		g:       p.g,
+		parent:  p,
+		prefix:  p.prefix,
+		nameGen: p.nameGen.Copy(),
 	}
 	if len(matches) != 0 {
 		ppl.first = newBlock(nil, nil)
@@ -230,6 +227,17 @@ func (p *Pipeline) outputType() reflect.Type {
 		}
 	}
 	return elemType
+}
+
+func (p *Pipeline) setOutputPorts(s []string) {
+	if p.first == nil {
+		if len(s) == 0 {
+			return
+		} else {
+			panic("set output on empty pipeline")
+		}
+	}
+	p.last = newBlock(nil, s)
 }
 
 func (p *Pipeline) String() string {
