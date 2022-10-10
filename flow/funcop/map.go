@@ -39,7 +39,7 @@ func (m *mapper) Run(ctx context.Context) error {
 		}
 
 		if token != nil {
-			if err := token.Wait(tokenCtx); err != nil {
+			if err := token.WaitSerialize(tokenCtx); err != nil {
 				if m.outChan != nil && len(ret) == 1 {
 					m.outChan.DropMessage(ret[0])
 				}
@@ -53,7 +53,7 @@ func (m *mapper) Run(ctx context.Context) error {
 			m.out <- ret[0]
 		}
 		if token != nil {
-			token.Release()
+			token.Done()
 		}
 		return nil
 	})

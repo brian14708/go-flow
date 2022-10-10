@@ -38,7 +38,7 @@ func (m *flatMapper) Run(ctx context.Context) error {
 		}
 
 		if token != nil {
-			if err := token.Wait(tokenCtx); err != nil {
+			if err := token.WaitSerialize(tokenCtx); err != nil {
 				if m.outChan != nil && ret[0] != nil {
 					out := reflect.ValueOf(ret[0])
 					for i := 0; i < out.Len(); i++ {
@@ -58,7 +58,7 @@ func (m *flatMapper) Run(ctx context.Context) error {
 			}
 		}
 		if token != nil {
-			token.Release()
+			token.Done()
 		}
 
 		return nil

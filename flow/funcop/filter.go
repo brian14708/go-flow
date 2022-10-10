@@ -40,7 +40,7 @@ func (f *filter) Run(ctx context.Context) error {
 		}
 
 		if token != nil {
-			if err := token.Wait(tokenCtx); err != nil {
+			if err := token.WaitSerialize(tokenCtx); err != nil {
 				if f.outChan != nil && keep {
 					f.outChan.DropMessage(val)
 				}
@@ -55,7 +55,7 @@ func (f *filter) Run(ctx context.Context) error {
 			f.out <- val
 		}
 		if token != nil {
-			token.Release()
+			token.Done()
 		}
 		return nil
 	})

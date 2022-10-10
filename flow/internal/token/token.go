@@ -66,7 +66,7 @@ func (q *TokenQueue) Acquire(ctx context.Context) (*Token, error) {
 	return t, nil
 }
 
-func (w *Token) Wait(ctx context.Context) error {
+func (w *Token) WaitSerialize(ctx context.Context) error {
 	if w.curr != nil {
 		select {
 		case <-w.curr:
@@ -80,9 +80,9 @@ func (w *Token) Wait(ctx context.Context) error {
 	return nil
 }
 
-func (w *Token) Release() {
+func (w *Token) Done() {
 	if w.curr != nil {
-		panic("Token.Wait must be called before release")
+		panic("Token.Wait must be called before done")
 	}
 	if w.next != nil {
 		w.next <- struct{}{}

@@ -94,7 +94,7 @@ func (c *submitNode) Run(ctx context.Context) error {
 			func(v interface{}, err error) {
 				go func() {
 					defer wg.Done()
-					if waitErr := token.Wait(ctx); waitErr != nil {
+					if waitErr := token.WaitSerialize(ctx); waitErr != nil {
 						if ch != nil && err == nil {
 							ch.DropMessage(v)
 						}
@@ -112,7 +112,7 @@ func (c *submitNode) Run(ctx context.Context) error {
 					} else {
 						c.out <- v
 					}
-					token.Release()
+					token.Done()
 				}()
 			},
 		)
