@@ -13,7 +13,7 @@ func newPortMatcher(ports []string) *portMatcher {
 	return &portMatcher{ports, false}
 }
 
-// match pattern and append to `matches`, also remove from portMatcher
+// match pattern and append to `matches`, also remove from portMatcher.
 func (p *portMatcher) appendMatch(matches []string, pattern string) ([]string, bool) {
 	if !p.copied {
 		tmp := make([]string, len(p.ports))

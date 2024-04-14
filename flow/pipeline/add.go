@@ -1,6 +1,7 @@
 package pipeline
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 
@@ -101,7 +102,7 @@ func (p *Pipeline) Discard(s ...string) *Pipeline {
 	return p
 }
 
-// connect block to end of the pipeline
+// connect block to end of the pipeline.
 func (p *Pipeline) connectBlock(
 	curr *block,
 	opts []flow.ConnectOption,
@@ -123,7 +124,7 @@ func (p *Pipeline) connectBlock(
 			continue
 		}
 		if s.g != p.g {
-			return fmt.Errorf("side input can only be sub-pipeline")
+			return errors.New("side input can only be sub-pipeline")
 		}
 		err := p.g.Connect(s.last.out, in, desc.options...)
 		if err != nil {
@@ -147,7 +148,7 @@ func (p *Pipeline) connectBlock(
 
 	if len(out) == 0 || len(in) == 0 {
 		if len(opts) != 0 {
-			return fmt.Errorf("dangling connection options")
+			return errors.New("dangling connection options")
 		}
 		return nil
 	}

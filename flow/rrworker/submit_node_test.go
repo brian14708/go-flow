@@ -90,7 +90,7 @@ func TestSubmitNode(t *testing.T) {
 
 		assert.Equal(t, 1, <-out)
 		assert.Equal(t, 2, <-out)
-		// r4 gets dropped becasue, r3 cause an error
+		// r4 gets dropped because, r3 cause an error
 		assert.Equal(t, 0, <-out)
 		assert.Error(t, <-errCh)
 		assert.Equal(t, 1, errCnt)

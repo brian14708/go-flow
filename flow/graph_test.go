@@ -110,7 +110,7 @@ func TestGraphError(t *testing.T) {
 		return err
 	})))
 
-	assert.True(t, errors.Is(g.Run(context.Background()), err))
+	assert.ErrorIs(t, g.Run(context.Background()), err)
 }
 
 func TestGraphMultiError(t *testing.T) {
@@ -157,7 +157,7 @@ func TestGraphBackgroundError(t *testing.T) {
 		return err
 	})
 	assert.NoError(t, g.AddNode("w", WaitNode()))
-	assert.True(t, errors.Is(g.Run(context.Background()), err))
+	assert.ErrorIs(t, g.Run(context.Background()), err)
 }
 
 func TestGraphErrorStall(t *testing.T) {

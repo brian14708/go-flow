@@ -3,8 +3,8 @@ package funcop
 import (
 	"context"
 	"errors"
-	"fmt"
 	"reflect"
+	"strconv"
 	"sync"
 	"testing"
 
@@ -146,7 +146,7 @@ func TestMapGraph(t *testing.T) {
 
 func BenchmarkMap(b *testing.B) {
 	for _, cnt := range []int{1, 4} {
-		b.Run(fmt.Sprintf("%d", cnt), func(b *testing.B) {
+		b.Run(strconv.Itoa(cnt), func(b *testing.B) {
 			node := Map(func(i int) int {
 				return i + 2
 			}, WithParallel(cnt, false))

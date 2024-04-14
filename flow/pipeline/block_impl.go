@@ -61,7 +61,7 @@ func newNodeBlock(node flow.Node, g *flow.Graph, name string) (*block, error) {
 	return blk, nil
 }
 
-func newPipelineBlock(ppl *Pipeline, g *flow.Graph, name string) (*block, error) {
+func newPipelineBlock(ppl *Pipeline, g *flow.Graph) (*block, error) {
 	if ppl.first == nil {
 		return nil, errors.New("cannot make block from empty pipeline")
 	}

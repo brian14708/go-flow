@@ -19,7 +19,7 @@ func (p *Profiler) index(w http.ResponseWriter, r *http.Request) {
 		ID    string `json:"id"`
 		State string `json:"state"`
 	}
-	var states []state
+	states := make([]state, 0, len(p.graphs))
 
 	for k, v := range p.graphs {
 		s := state{

@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
+	"os"
 
 	"github.com/brian14708/go-flow/flowtype/codegen"
 )
@@ -31,7 +31,7 @@ func main() {
 		panic(fmt.Sprintf("failed to generate code: %v", err))
 	}
 
-	err = ioutil.WriteFile(*flagOutput, src, 0o644)
+	err = os.WriteFile(*flagOutput, src, 0o644)
 	if err != nil {
 		panic(fmt.Sprintf("failed to write file: %v", err))
 	}
@@ -47,7 +47,7 @@ func main() {
 		}
 		fn := *flagOutput
 		fn = fn[:len(fn)-3] + "_test.go"
-		err = ioutil.WriteFile(fn, test, 0o644)
+		err = os.WriteFile(fn, test, 0o644)
 		if err != nil {
 			panic(fmt.Sprintf("failed to write file: %v", err))
 		}

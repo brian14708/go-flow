@@ -120,7 +120,7 @@ func (p *Pipeline) IgnoreOutput(s ...string) *Pipeline {
 	return p
 }
 
-// pipeline namespace for subpipelines, separated by `.'
+// pipeline namespace for subpipelines, separated by `.'.
 func (p *Pipeline) Namespace() string {
 	if p.prefix == "" {
 		return p.prefix
@@ -249,7 +249,7 @@ func (p *Pipeline) String() string {
 	return fmt.Sprintf("input=%s output=%s", in, out)
 }
 
-// read-only slice
+// read-only slice.
 func (p *Pipeline) Ports() ([]string, []string) {
 	if p.first == nil {
 		return nil, nil

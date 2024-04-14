@@ -3,9 +3,9 @@ package flow
 import (
 	"bytes"
 	"context"
-	"fmt"
 	"io"
 	"reflect"
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -203,7 +203,7 @@ func TestConnectType(t *testing.T) {
 
 func BenchmarkGraphObserver(b *testing.B) {
 	for _, cnt := range []int{0, 4, 16} {
-		b.Run(fmt.Sprintf("%d", cnt), func(b *testing.B) {
+		b.Run(strconv.Itoa(cnt), func(b *testing.B) {
 			in := make(chan int, 1)
 			out := make(chan int, 1)
 

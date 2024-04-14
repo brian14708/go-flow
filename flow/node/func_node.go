@@ -2,6 +2,7 @@ package node
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"reflect"
 
@@ -86,20 +87,20 @@ func NewFuncNode(n interface{}) (flow.Node, error) {
 	var in, out reflect.Type
 	t0 := types.Get(funcx.T0{})
 	if t1 := types.Get(funcx.T1{}); t1 != nil {
-		_, err := channel.IsAssignable(reflect.RecvDir, nil, reflect.PtrTo(t0))
+		_, err := channel.IsAssignable(reflect.RecvDir, nil, reflect.PointerTo(t0))
 		if err != nil {
 			return nil, fmt.Errorf("invalid recv port: %w", err)
 		}
-		_, err = channel.IsAssignable(reflect.SendDir, nil, reflect.PtrTo(t1))
+		_, err = channel.IsAssignable(reflect.SendDir, nil, reflect.PointerTo(t1))
 		if err != nil {
 			return nil, fmt.Errorf("invalid send port: %w", err)
 		}
 		in, out = t0, t1
 	} else {
-		dir, _ := channel.AssignableDir(nil, reflect.PtrTo(t0))
+		dir, _ := channel.AssignableDir(nil, reflect.PointerTo(t0))
 		switch dir {
 		case reflect.BothDir:
-			return nil, fmt.Errorf("bidirectional port unsupported")
+			return nil, errors.New("bidirectional port unsupported")
 		case reflect.SendDir:
 			out = t0
 		case reflect.RecvDir:

@@ -81,7 +81,7 @@ func RegexStatsMessage(str string) (error, *StatsMessage) {
 	return nil, &stats
 }
 
-// id.stat;[tag=value|metric@ratio;]
+// id.stat;[tag=value|metric@ratio;].
 func (msg *StatsMessage) ToString() string {
 	head := msg.GraphId + "." + msg.StatId + ";"
 	for i := range msg.TagMsgs {

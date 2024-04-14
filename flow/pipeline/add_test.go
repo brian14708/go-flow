@@ -112,7 +112,7 @@ func TestAddParallelBlock(t *testing.T) {
 
 	assert.NoError(t, ppl.Run(context.Background()))
 
-	var results []int
+	results := make([]int, 0, len(out))
 	for o := range out {
 		results = append(results, o)
 	}

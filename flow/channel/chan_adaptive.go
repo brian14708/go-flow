@@ -39,7 +39,7 @@ func (a *adaptiveChan) Close() {
 // adaptive number of inflight elements to a multiple of bandwidth delay product,
 // similar to "BBR: Congestion-Based Congestion Control".
 //
-// - estimiate processing delay with send-block time
+// - estimiate processing delay with send-block time.
 func (l *adaptiveChan) Serve() {
 	recv := flowtype.ChanRecver(l.sendEnd.Interface())
 

@@ -43,7 +43,7 @@ func (p *Pipeline) addBlock(name string, n interface{}) (*block, error) {
 		}
 		return p.addBlock(name, ppl)
 	case *Pipeline:
-		return newPipelineBlock(val, p.g, name)
+		return newPipelineBlock(val, p.g)
 	case flow.Node:
 		return newNodeBlock(val, p.g, name)
 	case *block:

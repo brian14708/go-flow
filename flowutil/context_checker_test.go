@@ -14,7 +14,7 @@ func TestContextChecker(t *testing.T) {
 
 	cc := NewContextChecker(ctx)
 	assert.True(t, cc.Valid())
-	assert.Nil(t, cc.Err())
+	assert.NoError(t, cc.Err())
 	cancel()
 	for cc.Valid() {
 		time.Sleep(time.Millisecond)

@@ -71,8 +71,8 @@ func TestPipeline(t *testing.T) {
 func TestPipelinePorts(t *testing.T) {
 	ppl := New(nil)
 	in, out := ppl.Ports()
-	assert.Equal(t, 0, len(in))
-	assert.Equal(t, 0, len(out))
+	assert.Empty(t, in)
+	assert.Empty(t, out)
 
 	ppl.Add("A", func(<-chan int, chan<- float32) {})
 	in, out = ppl.Ports()

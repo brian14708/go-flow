@@ -35,6 +35,6 @@ func TestIsAssignable(t *testing.T) {
 func BenchmarkIsAssignable(b *testing.B) {
 	var c chan int
 	for i := 0; i < b.N; i++ {
-		_, _ = IsAssignable(reflect.RecvDir, nil, reflect.PtrTo(reflect.TypeOf(c)))
+		_, _ = IsAssignable(reflect.RecvDir, nil, reflect.PointerTo(reflect.TypeOf(c)))
 	}
 }

@@ -1,6 +1,7 @@
 package channel
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 )
@@ -23,7 +24,7 @@ func IsAssignable(d reflect.ChanDir, elemType reflect.Type, t reflect.Type) (sto
 		}
 		storageType = t.Elem()
 	default:
-		return nil, fmt.Errorf("invalid chan direction")
+		return nil, errors.New("invalid chan direction")
 	}
 
 	if elemType != nil {

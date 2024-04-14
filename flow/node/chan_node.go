@@ -2,6 +2,7 @@ package node
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"reflect"
 
@@ -71,7 +72,7 @@ func NewChanNode(c interface{}) (flow.Node, error) {
 
 	dir := t.ChanDir()
 	if dir != reflect.SendDir && dir != reflect.RecvDir {
-		return nil, fmt.Errorf("channel direction should be send/recv")
+		return nil, errors.New("channel direction should be send/recv")
 	}
 
 	return &chanNode{

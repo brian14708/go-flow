@@ -72,7 +72,7 @@ func NewTagNode(n interface{}, tag string) (flow.NodeWrapper, error) {
 	}
 
 	if len(in) == 0 && len(out) == 0 {
-		return nil, fmt.Errorf("TagNode should have at least one port")
+		return nil, errors.New("TagNode should have at least one port")
 	}
 	return &tagNodeImpl{
 		tagNode: node,
@@ -158,10 +158,10 @@ func getTagPortsImpl(
 			return fmt.Errorf("channel `%s' already exists", tag)
 		}
 
-		dir, _ := channel.AssignableDir(nil, reflect.PtrTo(ft.Type))
+		dir, _ := channel.AssignableDir(nil, reflect.PointerTo(ft.Type))
 		switch dir {
 		case reflect.BothDir:
-			return fmt.Errorf("bidirectional port unsupported")
+			return errors.New("bidirectional port unsupported")
 		case reflect.SendDir:
 			out[tag] = val.Field(i).Addr().Interface()
 		case reflect.RecvDir:

@@ -15,7 +15,7 @@ import (
 
 var errWorkerClosed = errors.New("rrworker closed")
 
-// request-reply worker
+// request-reply worker.
 type RRWorker struct {
 	g       *flow.Graph
 	outType reflect.Type
