@@ -68,7 +68,7 @@ func TestNodePortRef(t *testing.T) {
 	ref.set(v, reflect.RecvDir)
 	assert.NotEqual(t, uintptr(0), ref.addr())
 	assert.NotNil(t, p.In)
-	ref.get().Close()
+	v.Close()
 	<-p.In // closed
 }
 
