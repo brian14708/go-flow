@@ -134,17 +134,17 @@ var viewerDotTmpl = template.Must(template.New("viewer.dot").Parse(`<!doctype ht
 <pre id="dot">
 {{.Dot | html}}
 </pre>
-<script src="../profiler/assets/hpcc.min.js"></script>
+<script src="https://unpkg.com/@hpcc-js/wasm/dist/graphviz.umd.js"></script>
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-	var hpccWasm = window["@hpcc-js/wasm"];
-	hpccWasm.graphviz.layout(document.getElementById("dot").innerText, "svg", "dot").then(svg => {
-		document.body.innerHTML = svg;
-		var r = document.getElementsByTagName('script');
-		for (var i = (r.length - 1); i >= 0; i--) {
-			r[i].parentNode.removeChild(r[i]);
-		}
-	});
+document.addEventListener("DOMContentLoaded", async function() {
+	var graphvizModule = window.graphviz || window["@hpcc-js/wasm/graphviz"];
+	var graphviz = await graphvizModule.Graphviz.load();
+	var svg = await graphviz.layout(document.getElementById("dot").innerText, "svg", "dot");
+	document.body.innerHTML = svg;
+	var r = document.getElementsByTagName('script');
+	for (var i = (r.length - 1); i >= 0; i--) {
+		r[i].parentNode.removeChild(r[i]);
+	}
 });
 </script>
 </body>

@@ -156,7 +156,7 @@ function init(graphInfo) {
         ensureNamespace(
           name.substr(0, i),
           name.substr(prev, i - prev),
-          prev === 0 ? "" : name.substr(0, prev - 1)
+          prev === 0 ? "" : name.substr(0, prev - 1),
         );
         prev = i + 1;
       }
@@ -253,7 +253,7 @@ function init(graphInfo) {
   let svgZoom = isUpdate ? svg.transition().duration(500) : svg;
   svgZoom.call(
     zoom.transform,
-    d3.zoomIdentity.translate(translateX, translateY).scale(zoomScale)
+    d3.zoomIdentity.translate(translateX, translateY).scale(zoomScale),
   );
 
   window.info = graphInfo;
@@ -382,7 +382,7 @@ function processMetrics(buf) {
       let v = rate <= 0 && util <= 0 ? 0 : 50;
       d3.selectAll(".edge-" + metrics[i][0].edgeName + " > path").style(
         "stroke",
-        "hsl(" + h.toFixed(1) + ", " + (s * 100).toFixed(1) + "%, " + v + "%)"
+        "hsl(" + h.toFixed(1) + ", " + (s * 100).toFixed(1) + "%, " + v + "%)",
       );
     }
   }
