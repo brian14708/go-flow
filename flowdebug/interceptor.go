@@ -196,7 +196,7 @@ func (p *intercept) Run(next flow.ChainInterceptor, ctx context.Context) error {
 		b := new(bytes.Buffer)
 		fmt.Fprintf(b, "Graph `%s' summary\n", g.ID())
 		w := tablewriter.NewWriter(b)
-		w.SetHeader([]string{"From", "To", "Count", "Rate"})
+		w.Header([]string{"From", "To", "Count", "Rate"})
 		for _, c := range topo.Connections {
 			w.Append([]string{
 				strings.Join(c.Source, "\n"),
@@ -204,9 +204,6 @@ func (p *intercept) Run(next flow.ChainInterceptor, ctx context.Context) error {
 				strconv.Itoa(*p.totalElem[c.ID]),
 				fmt.Sprintf("%.2f/s", float64(*p.totalElem[c.ID])/duration),
 			})
-			if len(c.Source) > 1 || len(c.Destination) > 1 {
-				w.SetRowLine(true)
-			}
 		}
 		w.Render()
 		log.Debug(b)
