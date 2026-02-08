@@ -41,7 +41,7 @@ func testLatency(name string, opts ...flow.ConnectOption) ewma.MovingAverage {
 	ppl.Add("", funcop.Map(func(i time.Time) {
 		latency.Add(float64(time.Since(i)) / float64(time.Second))
 	}))
-	ppl.Run(context.Background())
+	_ = ppl.Run(context.Background())
 	return latency
 }
 

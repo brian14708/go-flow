@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	. "github.com/dave/jennifer/jen"
+	. "github.com/dave/jennifer/jen" //nolint:staticcheck
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 

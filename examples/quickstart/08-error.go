@@ -26,7 +26,7 @@ func errorExample() {
 		funcop.Map(func(_ context.Context, s string) (int, error) {
 			time.Sleep(1 * time.Millisecond)
 			if len(s) == 0 {
-				return 0, errors.New("Custom Error")
+				return 0, errors.New("custom error")
 			}
 			return len(s), nil
 		}),
@@ -44,7 +44,7 @@ func errorExample() {
 	in <- ""
 	in <- "hello world"
 	close(in)
-	go ppl.Run(context.Background())
+	go func() { _ = ppl.Run(context.Background()) }()
 	for range out {
 	}
 }

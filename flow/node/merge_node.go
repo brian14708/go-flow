@@ -23,8 +23,7 @@ type mergeNode struct {
 func (m *mergeNode) Ports() (in, out flow.PortMap) {
 	in = port.MakeMap()
 	for i := range m.srcs {
-		in[fmt.Sprintf("in_%d", i)] =
-			port.TemplatePort(&m.srcs[i], m.inType)
+		in[fmt.Sprintf("in_%d", i)] = port.TemplatePort(&m.srcs[i], m.inType)
 	}
 	out = port.MakeMap(
 		"out", m.ch,

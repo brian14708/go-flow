@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
 type StatsTagMessage struct {
@@ -20,7 +21,7 @@ type StatsMessage struct {
 	TagMsgs []StatsTagMessage
 }
 
-func RegexStatsMessage(str string) (error, *StatsMessage) {
+func RegexStatsMessage(str string) (*StatsMessage, error) {
 	pattern := regexp.MustCompile(`^(?P<id>[^\.;=@\|]*)(\.(?P<stat>[^\.;=@\|]*))?;(?P<tags>.+)$`)
 
 	repeatPattern := regexp.MustCompile(`(?P<tag>[^\.;=@\|]*)(=(?P<value>\d+))?(\|(?P<metric>[^\.;=@\|]+)(@(?P<ratio>[\d.]*))?)?;`)
@@ -29,7 +30,7 @@ func RegexStatsMessage(str string) (error, *StatsMessage) {
 	groupNames := pattern.SubexpNames()
 
 	if len(match) == 0 {
-		return fmt.Errorf("Invalid pattern: %s", str), nil
+		return nil, fmt.Errorf("invalid pattern: %s", str)
 	}
 
 	var stats StatsMessage
@@ -42,9 +43,9 @@ func RegexStatsMessage(str string) (error, *StatsMessage) {
 		case "tags":
 			tagGroups := repeatPattern.FindAllStringSubmatch(group, -1)
 			tagGroupNames := repeatPattern.SubexpNames()
-			var matchedTag string
+			var matchedTag strings.Builder
 			for _, tagGroup := range tagGroups {
-				matchedTag += tagGroup[0]
+				matchedTag.WriteString(tagGroup[0])
 				var tagMsg StatsTagMessage
 				tagMsg.Ratio = 1.0
 				for j, item := range tagGroup {
@@ -55,7 +56,7 @@ func RegexStatsMessage(str string) (error, *StatsMessage) {
 						if item != "" {
 							value, err := strconv.ParseInt(item, 10, 0)
 							if err != nil {
-								return err, nil
+								return nil, err
 							}
 							tagMsg.Value = int(value)
 						}
@@ -65,7 +66,7 @@ func RegexStatsMessage(str string) (error, *StatsMessage) {
 						if item != "" {
 							ratio, err := strconv.ParseFloat(item, 64)
 							if err != nil {
-								return err, nil
+								return nil, err
 							}
 							tagMsg.Ratio = ratio
 						}
@@ -73,35 +74,46 @@ func RegexStatsMessage(str string) (error, *StatsMessage) {
 				}
 				stats.TagMsgs = append(stats.TagMsgs, tagMsg)
 			}
-			if matchedTag != group {
-				return fmt.Errorf("Invalid tags: %s", group), nil
+			if matchedTag.String() != group {
+				return nil, fmt.Errorf("invalid tags: %s", group)
 			}
 		}
 	}
-	return nil, &stats
+	return &stats, nil
 }
 
 // id.stat;[tag=value|metric@ratio;].
 func (msg *StatsMessage) ToString() string {
-	head := msg.GraphId + "." + msg.StatId + ";"
+	var sb strings.Builder
+	sb.WriteString(msg.GraphId)
+	sb.WriteString(".")
+	sb.WriteString(msg.StatId)
+	sb.WriteString(";")
 	for i := range msg.TagMsgs {
 		tagMsg := msg.TagMsgs[i]
-		head += tagMsg.Tag + "=" + strconv.Itoa(tagMsg.Value) + "|" + tagMsg.Metric + "@" + strconv.FormatFloat(tagMsg.Ratio, 'f', -1, 32) + ";"
+		sb.WriteString(tagMsg.Tag)
+		sb.WriteString("=")
+		sb.WriteString(strconv.Itoa(tagMsg.Value))
+		sb.WriteString("|")
+		sb.WriteString(tagMsg.Metric)
+		sb.WriteString("@")
+		sb.WriteString(strconv.FormatFloat(tagMsg.Ratio, 'f', -1, 32))
+		sb.WriteString(";")
 	}
-	return head
+	return sb.String()
 }
 
-func parseCharIf(tell func(byte) bool, desc string) func(string) (error, byte, string) {
-	return func(input string) (error, byte, string) {
+func parseCharIf(tell func(byte) bool, desc string) func(string) (byte, string, error) {
+	return func(input string) (byte, string, error) {
 		if tell(input[0]) {
-			return nil, input[0], input[1:]
+			return input[0], input[1:], nil
 		} else {
-			return fmt.Errorf("`%c` is invalid, expected satisfy %s, input: %s", input[0], desc, input), 0, input
+			return 0, input, fmt.Errorf("`%c` is invalid, expected satisfy %s, input: %s", input[0], desc, input)
 		}
 	}
 }
 
-func parseIsChar(c byte) func(string) (error, byte, string) {
+func parseIsChar(c byte) func(string) (byte, string, error) {
 	return parseCharIf(func(a byte) bool { return c == a }, fmt.Sprintf("%c", c))
 }
 
@@ -109,32 +121,32 @@ func parseIsChar(c byte) func(string) (error, byte, string) {
 	return parseCharIf(func(a byte) bool { return a >= 48 && a <= 57 }, "in range [0-9]")
 } */
 
-func parseStringSatisfy(tell func(byte) bool, desc string) func(string) (error, string, string) {
+func parseStringSatisfy(tell func(byte) bool, desc string) func(string) (string, string, error) {
 	charIf := parseCharIf(tell, desc)
-	return func(input string) (error, string, string) {
+	return func(input string) (string, string, error) {
 		for i := 0; i < len(input); i++ {
-			err, _, _ := charIf(input[i:])
+			_, _, err := charIf(input[i:])
 			if err != nil {
 				if i == 0 {
-					return err, "", input
+					return "", input, err
 				}
-				return nil, input[:i], input[i:]
+				return input[:i], input[i:], nil
 			}
 		}
-		return nil, input, ""
+		return input, "", nil
 	}
 }
 
-func parseString_util(stop byte) func(string) (error, string, string) {
+func parseString_util(stop byte) func(string) (string, string, error) {
 	charIf := parseIsChar(stop)
-	return func(input string) (error, string, string) {
+	return func(input string) (string, string, error) {
 		for i := 0; i < len(input); i++ {
-			err, _, rest := charIf(input[i:])
+			_, rest, err := charIf(input[i:])
 			if err == nil {
-				return nil, input[:i], rest
+				return input[:i], rest, nil
 			}
 		}
-		return fmt.Errorf("There hasnt stop:`%c`", stop), "", input
+		return "", input, fmt.Errorf("there hasn't stop:`%c`", stop)
 	}
 }
 
@@ -150,7 +162,7 @@ func parseString_util(stop byte) func(string) (error, string, string) {
 	}
 } */
 
-func ParseStatsMessage() func(string) (error, *StatsMessage) {
+func ParseStatsMessage() func(string) (*StatsMessage, error) {
 	parseId := parseStringSatisfy(func(a byte) bool {
 		return a != ';' && a != '=' && a != '@' && a != '|' && a != '.'
 	}, "dont include {; = @ | .}")
@@ -158,44 +170,44 @@ func ParseStatsMessage() func(string) (error, *StatsMessage) {
 	utilAt := parseString_util('@')
 	utilVert := parseString_util('|')
 	// id.stat;[tag=value|metric@ratio;]
-	return func(input string) (error, *StatsMessage) {
+	return func(input string) (*StatsMessage, error) {
 		ret := &StatsMessage{}
-		err, id, rest := parseId(input)
+		id, rest, err := parseId(input)
 		if err != nil {
-			return err, ret
+			return ret, err
 		}
 		ret.GraphId = id
-		err, _, rest = parseIsChar('.')(rest)
+		_, rest, err = parseIsChar('.')(rest)
 		if err != nil {
-			return err, ret
+			return ret, err
 		}
-		err, stat, rest := parseId(rest)
+		stat, rest, err := parseId(rest)
 		if err != nil {
-			return err, ret
+			return ret, err
 		}
 		ret.StatId = stat
-		err, _, rest = parseIsChar(';')(rest)
+		_, rest, err = parseIsChar(';')(rest)
 		if err != nil {
-			return err, ret
+			return ret, err
 		}
 		if len(rest) == 0 {
-			return fmt.Errorf("There hasnt message, input: %s", input), ret
+			return ret, fmt.Errorf("there hasn't message, input: %s", input)
 		}
 		ret.TagMsgs = make([]StatsTagMessage, 0, 8)
 		for {
 			var tagRet StatsTagMessage
-			err, tagRet.Tag, rest = parseId(rest)
+			tagRet.Tag, rest, err = parseId(rest)
 			if err != nil {
-				return err, ret
+				return ret, err
 			}
-			err, _, rest = parseIsChar('=')(rest)
+			_, rest, err = parseIsChar('=')(rest)
 			if err != nil {
-				return err, ret
+				return ret, err
 			}
 			var signAndNumber string
-			err, signAndNumber, rest = utilVert(rest)
+			signAndNumber, rest, err = utilVert(rest)
 			if err != nil {
-				return err, ret
+				return ret, err
 			}
 			if signAndNumber[0] == '+' || signAndNumber[0] == '-' {
 				tagRet.HasSign = true
@@ -205,19 +217,19 @@ func ParseStatsMessage() func(string) (error, *StatsMessage) {
 			}
 			tagRet.Value, err = strconv.Atoi(signAndNumber)
 			if err != nil {
-				return err, ret
+				return ret, err
 			}
 			var metricAndRatio string
-			err, metricAndRatio, rest = utilSemicolon(rest)
+			metricAndRatio, rest, err = utilSemicolon(rest)
 			if err != nil {
-				return err, ret
+				return ret, err
 			}
-			err, metric, ratio := utilAt(metricAndRatio)
+			metric, ratio, err := utilAt(metricAndRatio)
 			tagRet.Ratio = 1.0
 			if err == nil {
 				tagRet.Ratio, err = strconv.ParseFloat(ratio, 64)
 				if err != nil {
-					return err, ret
+					return ret, err
 				}
 				tagRet.Metric = metric
 			} else {
@@ -228,6 +240,6 @@ func ParseStatsMessage() func(string) (error, *StatsMessage) {
 				break
 			}
 		}
-		return nil, ret
+		return ret, nil
 	}
 }

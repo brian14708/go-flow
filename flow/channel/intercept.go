@@ -18,7 +18,7 @@ func (o *interceptChan) Drain() {
 
 func (o *interceptChan) Serve() {
 	// move elements from o.Value -> o.output
-	recv := flowtype.ChanRecver(o.Value.Interface())
+	recv := flowtype.ChanRecver(o.Interface())
 	send := flowtype.ChanSender(o.output.Interface())
 
 	for {

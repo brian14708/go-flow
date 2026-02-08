@@ -44,7 +44,7 @@ func funcExample() {
 	in <- "Hello world"
 	in <- "hello world"
 	close(in)
-	go ppl.Run(context.Background())
+	go func() { _ = ppl.Run(context.Background()) }()
 	var sum int
 	for o := range out {
 		sum += o

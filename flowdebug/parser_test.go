@@ -27,12 +27,12 @@ func TestParseStringStisfyParser(t *testing.T) {
 	}, "dont include {; = @ | .}")
 
 	for _, test := range testcaseNoerror {
-		err, _, _ := parse_id(test)
+		_, _, err := parse_id(test)
 		assert.NoError(t, err, test)
 	}
 
 	for _, test := range testcastError {
-		err, _, _ := parse_id(test)
+		_, _, err := parse_id(test)
 		assert.Error(t, err, test)
 	}
 }
@@ -53,17 +53,17 @@ func TestParseStatsMessageParser(t *testing.T) {
 	}
 
 	for _, test := range testcaseNoerror {
-		err, ret1 := ParseStatsMessage()(test)
+		ret1, err := ParseStatsMessage()(test)
 		assert.NoError(t, err, test)
-		err, ret2 := RegexStatsMessage(test)
+		ret2, err := RegexStatsMessage(test)
 		assert.NoError(t, err, test)
 		assert.Equal(t, ret1, ret2)
 	}
 
 	for _, test := range testcastError {
-		err, _ := ParseStatsMessage()(test)
+		_, err := ParseStatsMessage()(test)
 		assert.Error(t, err, test)
-		err, _ = RegexStatsMessage(test)
+		_, err = RegexStatsMessage(test)
 		assert.Error(t, err, test)
 	}
 }

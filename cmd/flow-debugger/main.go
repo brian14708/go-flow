@@ -62,7 +62,7 @@ func (s *Server) startGraphServer(ch chan<- *subscriber) {
 	if err != nil {
 		panic(err)
 	}
-	defer l.Close()
+	defer func() { _ = l.Close() }()
 
 	subscribeHandler := func(m map[string]flowdebug.Metric) func(*flowdebug.StatsMessage) {
 		return func(msg *flowdebug.StatsMessage) {
@@ -88,7 +88,7 @@ func (s *Server) startGraphServer(ch chan<- *subscriber) {
 			panic(err)
 		}
 		go func() {
-			defer conn.Close()
+			defer func() { _ = conn.Close() }()
 			reader := bufio.NewReader(conn)
 			buf, err := reader.ReadBytes('$')
 			if err != nil {
@@ -148,7 +148,7 @@ func (s *Server) startStatsServer(ch <-chan *subscriber) {
 	if err != nil {
 		panic(err)
 	}
-	defer l.Close()
+	defer func() { _ = l.Close() }()
 
 	buffer := make([]byte, 1024)
 
@@ -171,7 +171,7 @@ func (s *Server) startStatsServer(ch <-chan *subscriber) {
 			n, _, err := l.ReadFrom(buffer)
 			if err == nil {
 				// id.stat;[tag=value|metric@ratio;]
-				err, msg := flowdebug.RegexStatsMessage(string(buffer[:n]))
+				msg, err := flowdebug.RegexStatsMessage(string(buffer[:n]))
 				if err != nil {
 					continue
 				}

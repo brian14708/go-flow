@@ -54,7 +54,7 @@ func startWorker() *rrworker.RRWorker {
 	if err != nil {
 		panic(err)
 	}
-	go w.Run(context.Background())
+	go func() { _ = w.Run(context.Background()) }()
 	return w
 }
 
@@ -86,7 +86,7 @@ func rrworkerExample() {
 				}
 				return nil
 			})
-			ppl.Run(context.Background())
+			_ = ppl.Run(context.Background())
 		}()
 	}
 }

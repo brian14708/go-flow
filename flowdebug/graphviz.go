@@ -70,56 +70,56 @@ func writeGraphvizNode(w io.Writer, node types.Node) (port2id map[string]string)
 	label := namespace[len(namespace)-1]
 	namespace = namespace[:len(namespace)-1]
 
-	fmt.Fprint(w, "\t")
+	_, _ = fmt.Fprint(w, "\t")
 	for _, ns := range namespace {
-		fmt.Fprintf(w, "subgraph cluster_%s { ", ns)
-		fmt.Fprintf(w, "label=\"%s\"; ", ns)
+		_, _ = fmt.Fprintf(w, "subgraph cluster_%s { ", ns)
+		_, _ = fmt.Fprintf(w, "label=\"%s\"; ", ns)
 	}
-	fmt.Fprintf(w, "%s [label=\"{", hash(name))
+	_, _ = fmt.Fprintf(w, "%s [label=\"{", hash(name))
 
 	in, out := node.InPorts, node.OutPorts
 	displayPort := (len(in) != 1 || len(out) != 1)
 
 	if displayPort {
-		fmt.Fprint(w, "{")
+		_, _ = fmt.Fprint(w, "{")
 		first := true
 		for _, p := range in {
 			if !first {
-				fmt.Fprint(w, "|")
+				_, _ = fmt.Fprint(w, "|")
 			} else {
 				first = false
 			}
-			fmt.Fprintf(w, "<i%s>%s", hash(p.Name), p.Name)
+			_, _ = fmt.Fprintf(w, "<i%s>%s", hash(p.Name), p.Name)
 			port2id[p.Name] = fmt.Sprintf("%s:i%s", hash(name), hash(p.Name))
 		}
-		fmt.Fprint(w, "}|")
+		_, _ = fmt.Fprint(w, "}|")
 	} else {
 		for _, p := range in {
 			port2id[p.Name] = hash(name)
 		}
 	}
-	fmt.Fprintf(w, "%s", label)
+	_, _ = fmt.Fprintf(w, "%s", label)
 	if displayPort {
-		fmt.Fprint(w, "|{")
+		_, _ = fmt.Fprint(w, "|{")
 		first := true
 		for _, p := range out {
 			if !first {
-				fmt.Fprint(w, "|")
+				_, _ = fmt.Fprint(w, "|")
 			} else {
 				first = false
 			}
-			fmt.Fprintf(w, "<o%s>%s", hash(p.Name), p.Name)
+			_, _ = fmt.Fprintf(w, "<o%s>%s", hash(p.Name), p.Name)
 			port2id[p.Name] = fmt.Sprintf("%s:o%s", hash(name), hash(p.Name))
 		}
-		fmt.Fprint(w, "}")
+		_, _ = fmt.Fprint(w, "}")
 	} else {
 		for _, p := range out {
 			port2id[p.Name] = hash(name)
 		}
 	}
-	fmt.Fprint(w, "}\"]")
+	_, _ = fmt.Fprint(w, "}\"]")
 	for range namespace {
-		fmt.Fprint(w, " }")
+		_, _ = fmt.Fprint(w, " }")
 	}
 
 	return port2id

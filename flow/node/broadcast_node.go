@@ -26,8 +26,7 @@ func (l *broadcastNode) Ports() (in, out flow.PortMap) {
 	)
 	out = port.MakeMap()
 	for i := range l.dests {
-		out[fmt.Sprintf("out_%d", i)] =
-			port.TemplatePort(&l.dests[i], l.typ)
+		out[fmt.Sprintf("out_%d", i)] = port.TemplatePort(&l.dests[i], l.typ)
 	}
 	return
 }

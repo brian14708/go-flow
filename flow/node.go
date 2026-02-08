@@ -13,8 +13,8 @@ type Node interface {
 }
 
 // should implement this interface if a wrapper node is needed and want:
-//   * graph runtime to treat it as if it were the original node
-//   * forward all optional attributes
+//   - graph runtime to treat it as if it were the original node
+//   - forward all optional attributes
 type NodeWrapper interface {
 	Node
 	// expose underlying node for deduplication
