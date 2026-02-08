@@ -3,10 +3,10 @@ package flowdebug
 import (
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"net/http"
 	"sort"
 	"strings"
-	"text/template"
 
 	"github.com/brian14708/go-flow/flowdebug/types"
 )
